@@ -55,6 +55,9 @@
     .save-btn { background: #ff9800; }
     .save-btn:hover { background: #fb8c00; }
 
+    .light-btn { background: #00BCD4; } /* ✅ [Echo Jr] Added light button style */
+    .light-btn:hover { background: #00ACC1; }
+
     .arrow-btn {
         background: #333;
         width: 40px;
@@ -92,7 +95,7 @@
         height: 40%;
         border: 1px solid #000;
         margin-top: 10px;
-        background: #fff;
+        background: #000; /* ✅ [Echo Jr] Preview background changed to black */
         border-radius: 8px;
     }
 
@@ -107,6 +110,7 @@
     <button class="clear-all-btn" onclick="clearAll()">Clear All</button>
     <button class="move-btn" onclick="toggleMove()">Move</button>
     <button class="save-btn" onclick="saveLayerCode()">Save</button>
+    <button class="light-btn" onclick="loadLightTools()">Light</button> <!-- ✅ [Echo Jr] Light button added -->
 </div>
 
 <div class="editor-controls" id="layerButtons">
@@ -166,7 +170,6 @@ function updateLines() {
 
 function runCode() {
     const doc = preview.contentDocument || preview.contentWindow.document;
-    doc.body.style.background = 'black'; // ← This line was added
     let layerDiv = doc.getElementById('layer'+currentLayer);
     if(!layerDiv){
         layerDiv = document.createElement('div');
@@ -225,7 +228,10 @@ function saveLayerCode() {
     }
 }
 
-selectLayer(1);
+// ✅ [Echo Jr] Stub function so the Light button works
+function loadLightTools() {
+  alert("Light tool interface will load here from separate file.");
+}
 </script>
 
 </body>
