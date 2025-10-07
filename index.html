@@ -40,13 +40,8 @@
     .clear-all-btn { background: #9c27b0; }
     .clear-all-btn:hover { background: #8e24aa; transform: scale(1.05); box-shadow: 0 0 10px rgba(156,39,176,0.7); }
 
-    .layer-btn {
-        background: #555;
-    }
-    .layer-btn.selected {
-        background: yellow;
-        color: black;
-    }
+    .layer-btn { background: #555; }
+    .layer-btn.selected { background: yellow; color: black; }
     .layer-btn:hover { background: #777; }
 
     .move-btn { background: #2196F3; }
@@ -54,6 +49,9 @@
 
     .save-btn { background: #ff9800; }
     .save-btn:hover { background: #fb8c00; }
+
+    .light-btn { background: #00bcd4; }
+    .light-btn:hover { background: #00acc1; transform: scale(1.05); box-shadow: 0 0 10px rgba(0,188,212,0.7); }
 
     .arrow-btn {
         background: #333;
@@ -107,6 +105,7 @@
     <button class="clear-all-btn" onclick="clearAll()">Clear All</button>
     <button class="move-btn" onclick="toggleMove()">Move</button>
     <button class="save-btn" onclick="saveLayerCode()">Save</button>
+    <button class="light-btn" onclick="addLight()">Light</button>
 </div>
 
 <div class="editor-controls" id="layerButtons">
@@ -216,7 +215,6 @@ function saveLayerCode() {
     const layerDiv = doc.getElementById('layer'+currentLayer);
     if(layerDiv){
         let code = layers[currentLayer] || '';
-        // Replace existing top and left
         code = code.replace(/top:\s*\d+px;/,'top:'+layerDiv.style.top+';');
         code = code.replace(/left:\s*\d+px;/,'left:'+layerDiv.style.left+';');
         layers[currentLayer] = code;
@@ -225,7 +223,10 @@ function saveLayerCode() {
     }
 }
 
-selectLayer(1); // Initialize
+function addLight() {
+  console.log("Light button pressed — handled in separate light module.");
+}
+selectLayer(1);
 </script>
 
 </body>
