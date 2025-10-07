@@ -1,136 +1,170 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Multi-Layer Code Editor</title>
-<style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Multi-Layer Code Editor</title>
+  <style>
     body {
-        margin: 0;
-        font-family: monospace;
-        background: #1e1e1e;
-        color: #ddd;
-        display: flex;
-        flex-direction: column;
-        height: 100vh;
+      margin: 0;
+      font-family: monospace;
+      background: #1e1e1e;
+      color: #ddd;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
     }
 
     .editor-controls {
-        display: flex;
-        gap: 5px;
-        padding: 5px;
+      display: flex;
+      gap: 5px;
+      padding: 5px;
+      flex-wrap: wrap;
     }
 
     button {
-        padding: 8px 14px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 14px;
-        color: #fff;
-        transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #fff;
+      transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .run-btn { background: #4caf50; }
-    .run-btn:hover { background: #45a049; transform: scale(1.05); box-shadow: 0 0 10px rgba(76,175,80,0.7); }
-
-    .clear-btn { background: #f44336; }
-    .clear-btn:hover { background: #da3c30; transform: scale(1.05); box-shadow: 0 0 10px rgba(244,67,54,0.7); }
-
+    .run-btn       { background: #4caf50; }
+    .clear-btn     { background: #f44336; }
     .clear-all-btn { background: #9c27b0; }
-    .clear-all-btn:hover { background: #8e24aa; transform: scale(1.05); box-shadow: 0 0 10px rgba(156,39,176,0.7); }
+    .move-btn      { background: #2196F3; }
+    .save-btn      { background: #ff9800; }
+    .light-btn     { background: #00bcd4; }
 
-    .layer-btn { background: #555; }
-    .layer-btn.selected { background: yellow; color: black; }
-    .layer-btn:hover { background: #777; }
+    .run-btn:hover       { background: #45a049; }
+    .clear-btn:hover     { background: #da3c30; }
+    .clear-all-btn:hover { background: #8e24aa; }
+    .move-btn:hover      { background: #1e88e5; }
+    .save-btn:hover      { background: #fb8c00; }
+    .light-btn:hover     { background: #00acc1; }
 
-    .move-btn { background: #2196F3; }
-    .move-btn:hover { background: #1e88e5; }
-
-    .save-btn { background: #ff9800; }
-    .save-btn:hover { background: #fb8c00; }
-
-    .light-btn { background: #00bcd4; }
-    .light-btn:hover { background: #00acc1; transform: scale(1.05); box-shadow: 0 0 10px rgba(0,188,212,0.7); }
+    .layer-btn {
+      background: #555;
+    }
+    .layer-btn.selected {
+      background: yellow;
+      color: black;
+    }
+    .layer-btn:hover {
+      background: #777;
+    }
 
     .arrow-btn {
-        background: #333;
-        width: 40px;
-        height: 40px;
-        font-size: 20px;
+      background: #333;
+      width: 40px;
+      height: 40px;
+      font-size: 20px;
     }
 
     .editor {
-        display: flex;
-        flex: 1;
-        overflow: hidden;
+      display: flex;
+      flex: 1;
+      overflow: hidden;
     }
 
     .lines {
-        background: #2b2b2b;
-        padding: 5px;
-        text-align: right;
-        color: #777;
-        user-select: none;
+      background: #2b2b2b;
+      padding: 5px;
+      text-align: right;
+      color: #777;
+      user-select: none;
     }
 
     textarea {
-        flex: 1;
-        background: transparent;
-        border: none;
-        color: inherit;
-        padding: 5px;
-        outline: none;
-        font-size: 14px;
-        line-height: 1.5;
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: inherit;
+      padding: 5px;
+      outline: none;
+      font-size: 14px;
+      line-height: 1.5;
     }
 
     iframe {
-        width: 100%;
-        height: 40%;
-        border: 1px solid #000;
-        margin-top: 10px;
-        background: #fff;
-        border-radius: 8px;
+      width: 100%;
+      height: 40%;
+      border: 1px solid #000;
+      margin-top: 10px;
+      background: #fff;
+      border-radius: 8px;
     }
 
-    .arrow-container { display: none; gap: 5px; margin-top: 5px; }
-</style>
+    .arrow-container {
+      display: none;
+      gap: 5px;
+      margin-top: 5px;
+    }
+
+    .light-controls {
+      display: none;
+      gap: 5px;
+      padding: 5px;
+      flex-wrap: wrap;
+    }
+
+    .light-controls button {
+      background: #444;
+    }
+
+    .light-controls button:hover {
+      background: #666;
+    }
+  </style>
 </head>
 <body>
 
 <div class="editor-controls">
-    <button class="run-btn" onclick="runCode()">Run</button>
-    <button class="clear-btn" onclick="clearLayer()">Clear</button>
-    <button class="clear-all-btn" onclick="clearAll()">Clear All</button>
-    <button class="move-btn" onclick="toggleMove()">Move</button>
-    <button class="save-btn" onclick="saveLayerCode()">Save</button>
-    <button class="light-btn" onclick="addLight()">Light</button>
+  <button class="run-btn" onclick="runCode()">Run</button>
+  <button class="clear-btn" onclick="clearLayer()">Clear</button>
+  <button class="clear-all-btn" onclick="clearAll()">Clear All</button>
+  <button class="move-btn" onclick="toggleMove()">Move</button>
+  <button class="save-btn" onclick="saveLayerCode()">Save</button>
+  <button class="light-btn" onclick="toggleLightControls()">Light</button>
 </div>
 
 <div class="editor-controls" id="layerButtons">
-    <button class="layer-btn selected" onclick="selectLayer(1)">1</button>
-    <button class="layer-btn" onclick="selectLayer(2)">2</button>
-    <button class="layer-btn" onclick="selectLayer(3)">3</button>
-    <button class="layer-btn" onclick="selectLayer(4)">4</button>
-    <button class="layer-btn" onclick="selectLayer(5)">5</button>
-    <button class="layer-btn" onclick="selectLayer(6)">6</button>
-    <button class="layer-btn" onclick="selectLayer(7)">7</button>
-    <button class="layer-btn" onclick="selectLayer(8)">8</button>
-    <button class="layer-btn" onclick="selectLayer(9)">9</button>
-    <button class="layer-btn" onclick="selectLayer(10)">10</button>
+  <button class="layer-btn selected" onclick="selectLayer(1)">1</button>
+  <button class="layer-btn" onclick="selectLayer(2)">2</button>
+  <button class="layer-btn" onclick="selectLayer(3)">3</button>
+  <button class="layer-btn" onclick="selectLayer(4)">4</button>
+  <button class="layer-btn" onclick="selectLayer(5)">5</button>
+  <button class="layer-btn" onclick="selectLayer(6)">6</button>
+  <button class="layer-btn" onclick="selectLayer(7)">7</button>
+  <button class="layer-btn" onclick="selectLayer(8)">8</button>
+  <button class="layer-btn" onclick="selectLayer(9)">9</button>
+  <button class="layer-btn" onclick="selectLayer(10)">10</button>
 </div>
 
 <div class="editor">
-    <div class="lines" id="lineNumbers">1</div>
-    <textarea id="code" oninput="updateLines()"></textarea>
+  <div class="lines" id="lineNumbers">1</div>
+  <textarea id="code" oninput="updateLines()"></textarea>
 </div>
 
 <div class="arrow-container" id="arrowContainer">
-    <button class="arrow-btn" onclick="moveSelectedLayer(0,-10)">↑</button>
-    <button class="arrow-btn" onclick="moveSelectedLayer(0,10)">↓</button>
-    <button class="arrow-btn" onclick="moveSelectedLayer(-10,0)">←</button>
-    <button class="arrow-btn" onclick="moveSelectedLayer(10,0)">→</button>
+  <button class="arrow-btn" onclick="moveSelectedLayer(0,-10)">↑</button>
+  <button class="arrow-btn" onclick="moveSelectedLayer(0,10)">↓</button>
+  <button class="arrow-btn" onclick="moveSelectedLayer(-10,0)">←</button>
+  <button class="arrow-btn" onclick="moveSelectedLayer(10,0)">→</button>
+</div>
+
+<div class="light-controls" id="lightControls">
+  <button>Add Circle Light</button>
+  <button>Mask Light</button>
+  <button>Move Light ↑</button>
+  <button>Move Light ↓</button>
+  <button>Move Light ←</button>
+  <button>Move Light →</button>
+  <button>Increase Light</button>
+  <button>Decrease Light</button>
 </div>
 
 <iframe id="preview"></iframe>
@@ -140,92 +174,94 @@ const codeArea = document.getElementById("code");
 const lineNumbers = document.getElementById("lineNumbers");
 const preview = document.getElementById("preview");
 const arrowContainer = document.getElementById("arrowContainer");
+const lightControls = document.getElementById("lightControls");
 const layerBtns = document.querySelectorAll('.layer-btn');
 
 let currentLayer = 1;
 let layers = {
-    1: '<div style="width:100px;height:100px;background:blue;border-radius:50%;position:absolute;top:50px;left:50px;"></div>',
-    2: '<div style="width:0;height:0;border-left:50px solid transparent;border-right:50px solid transparent;border-bottom:100px solid red;position:absolute;top:50px;left:50px;"></div>',
-    3:'',4:'',5:'',6:'',7:'',8:'',9:'',10:''
+  1: '',
+  2: '',
+  3: '', 4: '', 5: '', 6: '', 7: '', 8: '', 9: '', 10: ''
 };
 
 function selectLayer(num) {
-    currentLayer = num;
-    layerBtns.forEach(b => b.classList.remove('selected'));
-    layerBtns[num-1].classList.add('selected');
-    codeArea.value = layers[num] || '';
-    updateLines();
+  currentLayer = num;
+  layerBtns.forEach(b => b.classList.remove('selected'));
+  layerBtns[num - 1].classList.add('selected');
+  codeArea.value = layers[num] || '';
+  updateLines();
 }
 
 function updateLines() {
-    const code = codeArea.value;
-    const lineCount = code.split("\n").length;
-    lineNumbers.innerText = Array.from({length: lineCount}, (_, i) => i + 1).join("\n");
+  const code = codeArea.value;
+  const lineCount = code.split("\n").length;
+  lineNumbers.innerText = Array.from({ length: lineCount }, (_, i) => i + 1).join("\n");
 }
 
 function runCode() {
-    const doc = preview.contentDocument || preview.contentWindow.document;
-    let layerDiv = doc.getElementById('layer'+currentLayer);
-    if(!layerDiv){
-        layerDiv = document.createElement('div');
-        layerDiv.id = 'layer'+currentLayer;
-        doc.body.appendChild(layerDiv);
-    }
-    layerDiv.innerHTML = codeArea.value;
-    layers[currentLayer] = codeArea.value;
-    layerDiv.style.position = 'absolute';
-    if(!layerDiv.style.top) layerDiv.style.top = '50px';
-    if(!layerDiv.style.left) layerDiv.style.left = '50px';
+  const doc = preview.contentDocument || preview.contentWindow.document;
+  let layerDiv = doc.getElementById('layer' + currentLayer);
+  if (!layerDiv) {
+    layerDiv = document.createElement('div');
+    layerDiv.id = 'layer' + currentLayer;
+    doc.body.appendChild(layerDiv);
+  }
+  layerDiv.innerHTML = codeArea.value;
+  layers[currentLayer] = codeArea.value;
+  layerDiv.style.position = 'absolute';
+  if (!layerDiv.style.top) layerDiv.style.top = '50px';
+  if (!layerDiv.style.left) layerDiv.style.left = '50px';
 }
 
 function clearLayer() {
-    layers[currentLayer] = '';
-    codeArea.value = '';
-    updateLines();
-    const doc = preview.contentDocument || preview.contentWindow.document;
-    const layerDiv = doc.getElementById('layer'+currentLayer);
-    if(layerDiv) doc.body.removeChild(layerDiv);
+  layers[currentLayer] = '';
+  codeArea.value = '';
+  updateLines();
+  const doc = preview.contentDocument || preview.contentWindow.document;
+  const layerDiv = doc.getElementById('layer' + currentLayer);
+  if (layerDiv) doc.body.removeChild(layerDiv);
 }
 
 function clearAll() {
-    Object.keys(layers).forEach(k=>layers[k]='');
-    codeArea.value = '';
-    updateLines();
-    const doc = preview.contentDocument || preview.contentWindow.document;
-    doc.body.innerHTML='';
+  Object.keys(layers).forEach(k => layers[k] = '');
+  codeArea.value = '';
+  updateLines();
+  const doc = preview.contentDocument || preview.contentWindow.document;
+  doc.body.innerHTML = '';
 }
 
 function toggleMove() {
-    arrowContainer.style.display = arrowContainer.style.display==='flex'?'none':'flex';
+  arrowContainer.style.display = arrowContainer.style.display === 'flex' ? 'none' : 'flex';
 }
 
-function moveSelectedLayer(dx,dy) {
-    const doc = preview.contentDocument || preview.contentWindow.document;
-    const layerDiv = doc.getElementById('layer'+currentLayer);
-    if(layerDiv){
-        let top = parseInt(layerDiv.style.top||0);
-        let left = parseInt(layerDiv.style.left||0);
-        layerDiv.style.top = (top+dy)+'px';
-        layerDiv.style.left = (left+dx)+'px';
-    }
+function toggleLightControls() {
+  lightControls.style.display = lightControls.style.display === 'flex' ? 'none' : 'flex';
+}
+
+function moveSelectedLayer(dx, dy) {
+  const doc = preview.contentDocument || preview.contentWindow.document;
+  const layerDiv = doc.getElementById('layer' + currentLayer);
+  if (layerDiv) {
+    let top = parseInt(layerDiv.style.top || 0);
+    let left = parseInt(layerDiv.style.left || 0);
+    layerDiv.style.top = (top + dy) + 'px';
+    layerDiv.style.left = (left + dx) + 'px';
+  }
 }
 
 function saveLayerCode() {
-    const doc = preview.contentDocument || preview.contentWindow.document;
-    const layerDiv = doc.getElementById('layer'+currentLayer);
-    if(layerDiv){
-        let code = layers[currentLayer] || '';
-        code = code.replace(/top:\s*\d+px;/,'top:'+layerDiv.style.top+';');
-        code = code.replace(/left:\s*\d+px;/,'left:'+layerDiv.style.left+';');
-        layers[currentLayer] = code;
-        codeArea.value = code;
-        updateLines();
-    }
+  const doc = preview.contentDocument || preview.contentWindow.document;
+  const layerDiv = doc.getElementById('layer' + currentLayer);
+  if (layerDiv) {
+    let code = layers[currentLayer] || '';
+    code = code.replace(/top:\s*\d+px;/, 'top:' + layerDiv.style.top + ';');
+    code = code.replace(/left:\s*\d+px;/, 'left:' + layerDiv.style.left + ';');
+    layers[currentLayer] = code;
+    codeArea.value = code;
+    updateLines();
+  }
 }
 
-function addLight() {
-  console.log("Light button pressed — handled in separate light module.");
-}
 selectLayer(1);
 </script>
 
